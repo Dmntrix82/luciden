@@ -6,6 +6,7 @@ import {
   expresionBusqueda,
   type FiltrosEstudiantes,
 } from "@/lib/estudiantes-consulta";
+import { COLUMNAS_CSV } from "@/lib/estudiantes-csv-config";
 
 function celdaCSV(valor: unknown) {
   const texto = valor === null || valor === undefined ? "" : String(valor);
@@ -14,22 +15,6 @@ function celdaCSV(valor: unknown) {
   }
   return texto;
 }
-
-const ENCABEZADOS: { clave: string; etiqueta: string }[] = [
-  { clave: "codigo_estudiante", etiqueta: "Código" },
-  { clave: "apellido_paterno", etiqueta: "Apellido Paterno" },
-  { clave: "apellido_materno", etiqueta: "Apellido Materno" },
-  { clave: "nombres", etiqueta: "Nombres" },
-  { clave: "sexo", etiqueta: "Sexo" },
-  { clave: "fecha_nacimiento", etiqueta: "Fecha de Nacimiento" },
-  { clave: "cedula_identidad", etiqueta: "Cédula de Identidad" },
-  { clave: "fecha_inscripcion", etiqueta: "Fecha de Inscripción" },
-  { clave: "fecha_inicio", etiqueta: "Fecha de Inicio" },
-  { clave: "fecha_final", etiqueta: "Fecha Final" },
-  { clave: "curso", etiqueta: "Curso" },
-  { clave: "mensualidad", etiqueta: "Mensualidad" },
-  { clave: "observaciones", etiqueta: "Observaciones" },
-];
 
 export async function exportarEstudiantesCSV(
   filtros: FiltrosEstudiantes
@@ -52,9 +37,9 @@ export async function exportarEstudiantesCSV(
   if (error) return { error: "No se pudo generar el archivo." };
 
   const filas = [
-    ENCABEZADOS.map((columna) => celdaCSV(columna.etiqueta)).join(","),
+    COLUMNAS_CSV.map((columna) => celdaCSV(columna.etiqueta)).join(","),
     ...(data ?? []).map((estudiante) =>
-      ENCABEZADOS.map((columna) =>
+      COLUMNAS_CSV.map((columna) =>
         celdaCSV((estudiante as unknown as Record<string, unknown>)[columna.clave])
       ).join(",")
     ),

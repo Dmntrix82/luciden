@@ -64,6 +64,9 @@ export default async function PaginaEstudiantes({
         <h1 className="text-xl font-semibold text-azul-oscuro">Estudiantes</h1>
         <div className="flex gap-2">
           <BotonExportarCSV filtros={{ buscar, curso, ordenar, direccion }} />
+          <Link href="/admin-db/importar">
+            <Boton variante="secundario">Importar Excel/CSV</Boton>
+          </Link>
           <Link href="/admin-db/nuevo-estudiante">
             <Boton>+ Nuevo estudiante</Boton>
           </Link>

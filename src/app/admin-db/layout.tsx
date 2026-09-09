@@ -8,6 +8,7 @@ const ENLACES = [
   { href: "/admin-db", etiqueta: "Panel", exacto: true },
   { href: "/admin-db/estudiantes", etiqueta: "Estudiantes" },
   { href: "/admin-db/nuevo-estudiante", etiqueta: "Nuevo estudiante", exacto: true },
+  { href: "/admin-db/importar", etiqueta: "Importar", exacto: true },
   { href: "/admin-db/historial", etiqueta: "Historial" },
 ];
 
