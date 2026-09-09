@@ -15,11 +15,15 @@ export async function obtenerUsuarioActual(): Promise<UsuarioActual | null> {
 
   if (!user) return null;
 
-  const { data: perfil } = await supabase
+  const { data: perfil, error: errorPerfil } = await supabase
     .from("perfiles")
     .select("*")
     .eq("id", user.id)
     .single();
+
+  if (errorPerfil) {
+    console.error("[obtenerUsuarioActual] error al leer perfil:", user.id, errorPerfil);
+  }
 
   return { id: user.id, email: user.email, perfil: perfil ?? null };
 }

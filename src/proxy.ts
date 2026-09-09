@@ -46,11 +46,14 @@ export async function proxy(request: NextRequest) {
 
   let rol: Rol | undefined;
   if (user) {
-    const { data: perfil } = await supabase
+    const { data: perfil, error: errorPerfil } = await supabase
       .from("perfiles")
       .select("rol")
       .eq("id", user.id)
       .single();
+    if (errorPerfil) {
+      console.error("[proxy] error al leer perfil:", user.id, errorPerfil);
+    }
     rol = perfil?.rol;
   }
 
