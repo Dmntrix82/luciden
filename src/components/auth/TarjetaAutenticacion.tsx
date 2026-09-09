@@ -115,25 +115,25 @@ export function TarjetaAutenticacion({ modoInicial }: { modoInicial: "login" | "
 
       <div className="auth-toggle-box">
         <div className="auth-toggle-panel izquierda">
-          <IconoCandado className="mb-3 h-10 w-10" />
-          <h1 className="text-2xl font-bold">¡Bienvenido!</h1>
-          <p className="mt-2 text-sm text-white/90">¿No tienes una cuenta?</p>
+          <IconoCandado className="mb-1.5 hidden h-10 w-10 sm:mb-3 sm:block" />
+          <h1 className="text-lg font-bold sm:text-2xl">¡Bienvenido!</h1>
+          <p className="mt-1 text-xs text-white/90 sm:mt-2 sm:text-sm">¿No tienes una cuenta?</p>
           <button
             type="button"
             onClick={() => setActivo(true)}
-            className="mt-4 h-11 w-40 rounded-lg border-2 border-white font-semibold transition-colors hover:bg-white hover:text-azul-oscuro"
+            className="mt-2 h-9 w-36 rounded-lg border-2 border-white text-sm font-semibold transition-colors hover:bg-white hover:text-azul-oscuro sm:mt-4 sm:h-11 sm:w-40 sm:text-base"
           >
             Regístrate
           </button>
         </div>
         <div className="auth-toggle-panel derecha">
-          <IconoCandado className="mb-3 h-10 w-10" />
-          <h1 className="text-2xl font-bold">¡Hola de nuevo!</h1>
-          <p className="mt-2 text-sm text-white/90">¿Ya tienes una cuenta?</p>
+          <IconoCandado className="mb-1.5 hidden h-10 w-10 sm:mb-3 sm:block" />
+          <h1 className="text-lg font-bold sm:text-2xl">¡Hola de nuevo!</h1>
+          <p className="mt-1 text-xs text-white/90 sm:mt-2 sm:text-sm">¿Ya tienes una cuenta?</p>
           <button
             type="button"
             onClick={() => setActivo(false)}
-            className="mt-4 h-11 w-40 rounded-lg border-2 border-white font-semibold transition-colors hover:bg-white hover:text-azul-oscuro"
+            className="mt-2 h-9 w-36 rounded-lg border-2 border-white text-sm font-semibold transition-colors hover:bg-white hover:text-azul-oscuro sm:mt-4 sm:h-11 sm:w-40 sm:text-base"
           >
             Inicia sesión
           </button>
