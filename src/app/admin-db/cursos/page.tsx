@@ -5,21 +5,30 @@ import { crearClienteServidor } from "@/lib/supabase/server";
 import { Boton } from "@/components/ui/Boton";
 import { BotonEliminarGenerico } from "@/components/admin/BotonEliminarGenerico";
 import { eliminarCurso } from "@/lib/actions/cursos";
+import { formatearHorario } from "@/lib/dias-semana";
 
 export const metadata: Metadata = { title: "Cursos — Admin DB" };
 
 export default async function PaginaCursos() {
   const supabase = await crearClienteServidor();
 
-  const [{ data: cursos }, { data: conteos }] = await Promise.all([
+  const [{ data: cursos }, { data: conteos }, { data: horarios }] = await Promise.all([
     supabase.from("cursos").select("*, docentes(nombres)").order("nombre"),
     supabase.from("estudiantes").select("curso_id"),
+    supabase.from("curso_horarios").select("*"),
   ]);
 
   const totalPorCurso = new Map<string, number>();
   for (const fila of conteos ?? []) {
     if (!fila.curso_id) continue;
     totalPorCurso.set(fila.curso_id, (totalPorCurso.get(fila.curso_id) ?? 0) + 1);
+  }
+
+  const horariosPorCurso = new Map<string, { dia_semana: number; hora_inicio: string; hora_fin: string }[]>();
+  for (const h of horarios ?? []) {
+    const lista = horariosPorCurso.get(h.curso_id) ?? [];
+    lista.push(h);
+    horariosPorCurso.set(h.curso_id, lista);
   }
 
   return (
@@ -51,7 +60,15 @@ export default async function PaginaCursos() {
               <p className="text-sm text-gray-500">
                 {curso.docentes?.nombres ? `Docente: ${curso.docentes.nombres}` : "Sin docente asignado"}
               </p>
-              {curso.horario && <p className="text-sm text-gray-500">Horario: {curso.horario}</p>}
+              {(() => {
+                const lista = horariosPorCurso.get(curso.id) ?? [];
+                if (lista.length === 0) return null;
+                return (
+                  <p className="text-sm text-gray-500">
+                    {formatearHorario(lista.map((h) => h.dia_semana), lista[0].hora_inicio, lista[0].hora_fin)}
+                  </p>
+                );
+              })()}
               <p className="text-sm font-medium text-azul-medio">
                 {totalPorCurso.get(curso.id) ?? 0} estudiante(s) inscrito(s)
               </p>

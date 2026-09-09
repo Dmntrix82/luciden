@@ -5,7 +5,7 @@ import { Campo, CampoTextarea } from "@/components/ui/Campo";
 import { Boton } from "@/components/ui/Boton";
 import { Mensaje } from "@/components/ui/Mensaje";
 import type { EstadoFormulario } from "@/lib/actions/auth";
-import type { Docente } from "@/types/database";
+import type { Secretaria } from "@/types/database";
 
 type AccionFormulario = (
   prevState: EstadoFormulario,
@@ -14,16 +14,16 @@ type AccionFormulario = (
 
 const estadoInicial: EstadoFormulario = {};
 
-export function FormularioDocente({
+export function FormularioSecretaria({
   accion,
   valoresIniciales,
-  ocultarNombre,
+  nombreCompleto,
   ocultarCuenta,
   textoBoton,
 }: {
   accion: AccionFormulario;
-  valoresIniciales?: Docente;
-  ocultarNombre?: boolean;
+  valoresIniciales?: Secretaria;
+  nombreCompleto?: string;
   ocultarCuenta?: boolean;
   textoBoton: string;
 }) {
@@ -35,17 +35,39 @@ export function FormularioDocente({
       {estado.error && <Mensaje tipo="error" texto={estado.error} />}
       {estado.exito && <Mensaje tipo="exito" texto={estado.exito} />}
 
+      {esNuevo ? (
+        <fieldset className="rounded-lg border border-gray-200 p-4">
+          <legend className="px-1 text-sm font-medium text-azul-oscuro">
+            Cuenta de acceso a la plataforma
+          </legend>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Campo etiqueta="Nombre completo" nombre="nombre_completo" requerido />
+            <Campo etiqueta="Nombre de usuario" nombre="nombre_usuario" requerido autoComplete="off" />
+            <Campo etiqueta="Correo electrónico" nombre="email" type="email" requerido autoComplete="off" />
+            <Campo
+              etiqueta="Contraseña (mínimo 8 caracteres)"
+              nombre="password"
+              type="password"
+              requerido
+              minLength={8}
+              autoComplete="new-password"
+            />
+          </div>
+        </fieldset>
+      ) : (
+        <p className="text-sm text-gray-600">
+          Editando datos de <span className="font-medium">{nombreCompleto}</span>.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {!ocultarNombre && (
-          <Campo etiqueta="Nombres completos" nombre="nombres" requerido defaultValue={valoresIniciales?.nombres} />
-        )}
         <Campo
           etiqueta="Carnet de identidad"
           nombre="carnet_identidad"
           defaultValue={valoresIniciales?.carnet_identidad ?? undefined}
         />
-        <Campo etiqueta="Dirección" nombre="direccion" defaultValue={valoresIniciales?.direccion ?? undefined} />
         <Campo etiqueta="Celular" nombre="celular" defaultValue={valoresIniciales?.celular ?? undefined} />
+        <Campo etiqueta="Dirección" nombre="direccion" defaultValue={valoresIniciales?.direccion ?? undefined} />
         <Campo
           etiqueta="Fecha de inicio"
           nombre="fecha_inicio"
@@ -59,30 +81,6 @@ export function FormularioDocente({
           defaultValue={valoresIniciales?.fecha_final ?? undefined}
         />
       </div>
-
-      {esNuevo && (
-        <fieldset className="rounded-lg border border-gray-200 p-4">
-          <legend className="px-1 text-sm font-medium text-azul-oscuro">
-            Cuenta de acceso a la plataforma
-          </legend>
-          <p className="mb-3 text-xs text-gray-500">
-            El docente ingresará con este correo (o usuario) y contraseña. Podrá cambiarla después
-            desde su perfil.
-          </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Campo etiqueta="Nombre de usuario" nombre="nombre_usuario" requerido autoComplete="off" />
-            <Campo etiqueta="Correo electrónico" nombre="email" type="email" requerido autoComplete="off" />
-            <Campo
-              etiqueta="Contraseña (mínimo 8 caracteres)"
-              nombre="password"
-              type="password"
-              requerido
-              minLength={8}
-              autoComplete="new-password"
-            />
-          </div>
-        </fieldset>
-      )}
 
       <div>
         <p className="mb-2 text-sm font-medium text-gray-700">Documentos presentados</p>

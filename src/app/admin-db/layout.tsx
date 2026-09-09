@@ -11,6 +11,8 @@ const ENLACES = [
   { href: "/admin-db/importar", etiqueta: "Importar", exacto: true },
   { href: "/admin-db/cursos", etiqueta: "Cursos" },
   { href: "/admin-db/docentes", etiqueta: "Docentes" },
+  { href: "/admin-db/usuarios", etiqueta: "Usuarios" },
+  { href: "/admin-db/reportes", etiqueta: "Reportes", exacto: true },
   { href: "/admin-db/historial", etiqueta: "Historial" },
 ];
 

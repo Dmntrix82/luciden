@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Campo, CampoSelect, CampoTextarea } from "@/components/ui/Campo";
 import { Boton } from "@/components/ui/Boton";
 import { Mensaje } from "@/components/ui/Mensaje";
+import { DIAS_SEMANA } from "@/lib/dias-semana";
 import type { EstadoFormulario } from "@/lib/actions/auth";
-import type { Curso, Docente } from "@/types/database";
+import type { Curso, CursoHorario, Docente } from "@/types/database";
 
 type AccionFormulario = (
   prevState: EstadoFormulario,
@@ -17,15 +18,26 @@ const estadoInicial: EstadoFormulario = {};
 export function FormularioCurso({
   accion,
   valoresIniciales,
+  horariosIniciales = [],
   docentes,
   textoBoton,
 }: {
   accion: AccionFormulario;
   valoresIniciales?: Curso;
+  horariosIniciales?: CursoHorario[];
   docentes: Docente[];
   textoBoton: string;
 }) {
   const [estado, accionFormulario, enProgreso] = useActionState(accion, estadoInicial);
+  const [diasSeleccionados, setDiasSeleccionados] = useState<number[]>(
+    horariosIniciales.map((h) => h.dia_semana)
+  );
+
+  function alternarDia(dia: number) {
+    setDiasSeleccionados((actuales) =>
+      actuales.includes(dia) ? actuales.filter((d) => d !== dia) : [...actuales, dia]
+    );
+  }
 
   return (
     <form action={accionFormulario} className="flex flex-col gap-6">
@@ -40,7 +52,6 @@ export function FormularioCurso({
           defaultValue={valoresIniciales?.docente_id ?? undefined}
           opciones={docentes.map((d) => ({ valor: d.id, etiqueta: d.nombres }))}
         />
-        <Campo etiqueta="Horario" nombre="horario" defaultValue={valoresIniciales?.horario ?? undefined} />
         <Campo
           etiqueta="Fecha de inicio de clases"
           nombre="fecha_inicio_clases"
@@ -53,6 +64,39 @@ export function FormularioCurso({
           type="date"
           defaultValue={valoresIniciales?.fecha_fin_clases ?? undefined}
         />
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm font-medium text-gray-700">¿Qué días hay clase?</p>
+        <div className="flex flex-wrap gap-3">
+          {DIAS_SEMANA.map((dia) => (
+            <label key={dia.valor} className="flex items-center gap-1.5 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                name="dias"
+                value={dia.valor}
+                checked={diasSeleccionados.includes(dia.valor)}
+                onChange={() => alternarDia(dia.valor)}
+                className="h-4 w-4"
+              />
+              {dia.etiqueta}
+            </label>
+          ))}
+        </div>
+        <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Campo
+            etiqueta="Hora de inicio"
+            nombre="hora_inicio"
+            type="time"
+            defaultValue={horariosIniciales[0]?.hora_inicio?.slice(0, 5)}
+          />
+          <Campo
+            etiqueta="Hora de fin"
+            nombre="hora_fin"
+            type="time"
+            defaultValue={horariosIniciales[0]?.hora_fin?.slice(0, 5)}
+          />
+        </div>
       </div>
 
       <CampoTextarea

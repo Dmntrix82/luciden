@@ -12,9 +12,10 @@ export default async function PaginaEditarCurso({ params }: { params: Promise<{ 
   const { id } = await params;
   const supabase = await crearClienteServidor();
 
-  const [{ data: curso }, { data: docentes }] = await Promise.all([
+  const [{ data: curso }, { data: docentes }, { data: horarios }] = await Promise.all([
     supabase.from("cursos").select("*").eq("id", id).single(),
     supabase.from("docentes").select("*").order("nombres"),
+    supabase.from("curso_horarios").select("*").eq("curso_id", id).order("dia_semana"),
   ]);
 
   if (!curso) notFound();
@@ -29,6 +30,7 @@ export default async function PaginaEditarCurso({ params }: { params: Promise<{ 
         <FormularioCurso
           accion={actualizarCurso.bind(null, id)}
           valoresIniciales={curso}
+          horariosIniciales={horarios ?? []}
           docentes={docentes ?? []}
           textoBoton="Guardar cambios"
         />

@@ -20,6 +20,7 @@ function leerDatosEstudiante(formData: FormData) {
     fecha_final: String(formData.get("fecha_final") ?? "") || null,
     curso_id: String(formData.get("curso_id") ?? "") || null,
     estado_pago: String(formData.get("estado_pago") ?? "activo"),
+    abandono: formData.get("abandono") === "on",
     mensualidad: formData.get("mensualidad"),
     observaciones: String(formData.get("observaciones") ?? "").trim() || null,
   };

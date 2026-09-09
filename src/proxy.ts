@@ -5,6 +5,8 @@ import type { Rol } from "@/types/database";
 const RUTAS_POR_ROL: Record<string, Rol> = {
   "/admin-db": "admin_db",
   "/admin-contenido": "admin_contenido",
+  "/docente": "docente",
+  "/secretaria": "secretaria",
 };
 
 const RUTAS_AUTENTICADAS = ["/cliente"];
@@ -13,6 +15,8 @@ const RUTAS_SOLO_INVITADOS = ["/login", "/registro"];
 function panelDeInicio(rol: Rol | undefined) {
   if (rol === "admin_db") return "/admin-db";
   if (rol === "admin_contenido") return "/admin-contenido";
+  if (rol === "docente") return "/docente";
+  if (rol === "secretaria") return "/secretaria";
   return "/cliente";
 }
 

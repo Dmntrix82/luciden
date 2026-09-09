@@ -157,6 +157,16 @@ export function FormularioEstudiante({
         />
       </div>
 
+      <label className="flex items-center gap-2 text-sm text-gray-700">
+        <input
+          type="checkbox"
+          name="abandono"
+          defaultChecked={valoresIniciales?.abandono}
+          className="h-4 w-4"
+        />
+        El estudiante abandonó el curso
+      </label>
+
       <div>
         <label className="text-sm font-medium text-gray-700">Números de celular / referencia</label>
         <div className="mt-2 flex flex-col gap-2">

@@ -1,8 +1,8 @@
 import Image from "next/image";
-import type { Curso } from "@/types/database";
+import type { CursoConHorario } from "@/lib/cursos-publico";
 import { formatearFecha } from "@/lib/fecha";
 
-export function TarjetaCurso({ curso }: { curso: Curso }) {
+export function TarjetaCurso({ curso }: { curso: CursoConHorario }) {
   return (
     <article className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
       <div className="relative h-40 w-full bg-gris-claro">
@@ -24,7 +24,7 @@ export function TarjetaCurso({ curso }: { curso: Curso }) {
         <h3 className="font-semibold text-azul-oscuro">{curso.nombre}</h3>
         {curso.informacion && <p className="text-sm text-gray-600">{curso.informacion}</p>}
         <div className="mt-auto flex flex-col gap-1 pt-2 text-sm text-gray-500">
-          {curso.horario && <span>Horario: {curso.horario}</span>}
+          {curso.horarioFormateado && <span>{curso.horarioFormateado}</span>}
           {curso.fecha_inicio_clases && (
             <span>Inicio: {formatearFecha(curso.fecha_inicio_clases)}</span>
           )}

@@ -20,6 +20,8 @@ async function obtenerOrigen() {
 function panelDeInicio(rol: Rol | undefined) {
   if (rol === "admin_db") return "/admin-db";
   if (rol === "admin_contenido") return "/admin-contenido";
+  if (rol === "docente") return "/docente";
+  if (rol === "secretaria") return "/secretaria";
   return "/cliente";
 }
 

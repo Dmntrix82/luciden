@@ -1,4 +1,4 @@
-export type Rol = "cliente" | "admin_db" | "admin_contenido";
+export type Rol = "cliente" | "admin_db" | "admin_contenido" | "docente" | "secretaria";
 
 export type Sexo = "Masculino" | "Femenino";
 
@@ -7,6 +7,10 @@ export type EstadoPago = "activo" | "pago_pendiente" | "desactivado";
 export type TipoContenido = "texto" | "imagen" | "tipografia" | "color";
 
 export type AccionHistorial = "creó" | "modificó" | "eliminó";
+
+export type EstadoAsistencia = "presente" | "atrasado" | "falta";
+
+export type EstadoCalificacion = "en_curso" | "aprobado" | "reprobado";
 
 export type Perfil = {
   id: string;
@@ -32,6 +36,7 @@ export type Estudiante = {
   curso: string | null;
   curso_id: string | null;
   estado_pago: EstadoPago;
+  abandono: boolean;
   mensualidad: number;
   observaciones: string | null;
   created_at: string;
@@ -49,7 +54,23 @@ export type EstudianteTelefono = {
 
 export type Docente = {
   id: string;
+  perfil_id: string | null;
   nombres: string;
+  direccion: string | null;
+  carnet_identidad: string | null;
+  celular: string | null;
+  fecha_inicio: string | null;
+  fecha_final: string | null;
+  documento_cv: boolean;
+  documento_carnet: boolean;
+  documento_contrato: boolean;
+  observaciones: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Secretaria = {
+  id: string;
   direccion: string | null;
   carnet_identidad: string | null;
   celular: string | null;
@@ -75,6 +96,58 @@ export type Curso = {
   activo: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type CursoHorario = {
+  id: string;
+  curso_id: string;
+  dia_semana: number;
+  hora_inicio: string;
+  hora_fin: string;
+  created_at: string;
+};
+
+export type Asistencia = {
+  id: string;
+  curso_id: string;
+  estudiante_id: string;
+  fecha: string;
+  estado: EstadoAsistencia;
+  registrado_por: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AsistenciaDocente = {
+  id: string;
+  docente_id: string;
+  fecha: string;
+  hora_llegada: string;
+  registrado_por: string | null;
+  created_at: string;
+};
+
+export type Calificacion = {
+  id: string;
+  estudiante_id: string;
+  curso_id: string;
+  nota_final: number | null;
+  estado: EstadoCalificacion;
+  observaciones: string | null;
+  registrado_por: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Pago = {
+  id: string;
+  estudiante_id: string;
+  monto: number;
+  fecha_pago: string;
+  mes_correspondiente: string | null;
+  observaciones: string | null;
+  registrado_por: string | null;
+  created_at: string;
 };
 
 export type ContenidoPagina = {
@@ -126,8 +199,8 @@ export type Database = {
       >;
       estudiantes: Tabla<
         Estudiante,
-        Omit<Estudiante, "id" | "created_at" | "updated_at" | "created_by" | "curso"> &
-          Partial<Pick<Estudiante, "id" | "created_by" | "curso">>,
+        Omit<Estudiante, "id" | "created_at" | "updated_at" | "created_by" | "curso" | "abandono"> &
+          Partial<Pick<Estudiante, "id" | "created_by" | "curso" | "abandono">>,
         Partial<Omit<Estudiante, "id" | "created_at" | "updated_at">>,
         [
           {
@@ -147,13 +220,19 @@ export type Database = {
       >;
       docentes: Tabla<
         Docente,
-        Omit<Docente, "id" | "created_at" | "updated_at"> & Partial<Pick<Docente, "id">>,
+        Omit<Docente, "id" | "created_at" | "updated_at" | "perfil_id"> &
+          Partial<Pick<Docente, "id" | "perfil_id">>,
         Partial<Omit<Docente, "id" | "created_at" | "updated_at">>
+      >;
+      secretarias: Tabla<
+        Secretaria,
+        Omit<Secretaria, "created_at" | "updated_at">,
+        Partial<Omit<Secretaria, "id" | "created_at" | "updated_at">>
       >;
       cursos: Tabla<
         Curso,
-        Omit<Curso, "id" | "created_at" | "updated_at" | "imagen_url"> &
-          Partial<Pick<Curso, "id" | "imagen_url">>,
+        Omit<Curso, "id" | "created_at" | "updated_at" | "imagen_url" | "horario"> &
+          Partial<Pick<Curso, "id" | "imagen_url" | "horario">>,
         Partial<Omit<Curso, "id" | "created_at" | "updated_at">>,
         [
           {
@@ -164,6 +243,44 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ]
+      >;
+      curso_horarios: Tabla<
+        CursoHorario,
+        Omit<CursoHorario, "id" | "created_at"> & Partial<Pick<CursoHorario, "id">>,
+        Partial<Omit<CursoHorario, "id">>
+      >;
+      asistencias: Tabla<
+        Asistencia,
+        Omit<Asistencia, "id" | "created_at" | "updated_at" | "registrado_por"> &
+          Partial<Pick<Asistencia, "id" | "registrado_por">>,
+        Partial<Omit<Asistencia, "id" | "created_at" | "updated_at">>,
+        [
+          {
+            foreignKeyName: "asistencias_estudiante_id_fkey";
+            columns: ["estudiante_id"];
+            isOneToOne: false;
+            referencedRelation: "estudiantes";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
+      asistencia_docentes: Tabla<
+        AsistenciaDocente,
+        Omit<AsistenciaDocente, "id" | "created_at" | "hora_llegada" | "registrado_por"> &
+          Partial<Pick<AsistenciaDocente, "id" | "hora_llegada" | "registrado_por">>,
+        Partial<Omit<AsistenciaDocente, "id" | "created_at">>
+      >;
+      calificaciones: Tabla<
+        Calificacion,
+        Omit<Calificacion, "id" | "created_at" | "updated_at" | "observaciones" | "registrado_por"> &
+          Partial<Pick<Calificacion, "id" | "observaciones" | "registrado_por">>,
+        Partial<Omit<Calificacion, "id" | "created_at" | "updated_at">>
+      >;
+      pagos: Tabla<
+        Pago,
+        Omit<Pago, "id" | "created_at" | "registrado_por"> &
+          Partial<Pick<Pago, "id" | "registrado_por">>,
+        Partial<Omit<Pago, "id" | "created_at">>
       >;
       contenido_pagina: Tabla<
         ContenidoPagina,

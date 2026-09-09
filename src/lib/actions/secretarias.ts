@@ -9,9 +9,8 @@ import type { EstadoFormulario } from "@/lib/actions/auth";
 const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const REGEX_USUARIO = /^[a-zA-Z0-9_]{3,30}$/;
 
-function leerDatosDocente(formData: FormData) {
+function leerDatosSecretaria(formData: FormData) {
   return {
-    nombres: String(formData.get("nombres") ?? "").trim(),
     direccion: String(formData.get("direccion") ?? "").trim() || null,
     carnet_identidad: String(formData.get("carnet_identidad") ?? "").trim() || null,
     celular: String(formData.get("celular") ?? "").trim() || null,
@@ -24,16 +23,17 @@ function leerDatosDocente(formData: FormData) {
   };
 }
 
-export async function crearDocente(
+export async function crearSecretaria(
   _prevState: EstadoFormulario,
   formData: FormData
 ): Promise<EstadoFormulario> {
-  const datos = leerDatosDocente(formData);
+  const datos = leerDatosSecretaria(formData);
+  const nombreCompleto = String(formData.get("nombre_completo") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const nombreUsuario = String(formData.get("nombre_usuario") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
-  if (!datos.nombres) return { error: "El nombre del docente es obligatorio." };
+  if (!nombreCompleto) return { error: "El nombre es obligatorio." };
   if (!email || !REGEX_EMAIL.test(email)) return { error: "El correo electrónico no es válido." };
   if (!REGEX_USUARIO.test(nombreUsuario)) {
     return { error: "El nombre de usuario debe tener entre 3 y 30 caracteres (letras, números o guion bajo)." };
@@ -55,58 +55,47 @@ export async function crearDocente(
     email,
     password,
     email_confirm: true,
-    user_metadata: { nombre_usuario: nombreUsuario, nombre_completo: datos.nombres },
+    user_metadata: { nombre_usuario: nombreUsuario, nombre_completo: nombreCompleto },
   });
 
   if (errorCreacion || !creado.user) {
     if (errorCreacion?.message.toLowerCase().includes("already been registered")) {
       return { error: "Ya existe una cuenta registrada con ese correo." };
     }
-    return { error: "No se pudo crear la cuenta del docente." };
+    return { error: "No se pudo crear la cuenta de la secretaria." };
   }
 
   const perfilId = creado.user.id;
 
   const { error: errorRol } = await supabase
     .from("perfiles")
-    .update({ rol: "docente" })
+    .update({ rol: "secretaria" })
     .eq("id", perfilId);
 
-  const { error: errorDocente } = await supabase
-    .from("docentes")
-    .insert({ ...datos, perfil_id: perfilId });
+  const { error: errorSecretaria } = await supabase
+    .from("secretarias")
+    .insert({ id: perfilId, ...datos });
 
-  if (errorRol || errorDocente) {
+  if (errorRol || errorSecretaria) {
     await admin.auth.admin.deleteUser(perfilId);
-    return { error: "No se pudo registrar el docente. Intenta nuevamente." };
+    return { error: "No se pudo registrar a la secretaria. Intenta nuevamente." };
   }
 
-  revalidatePath("/admin-db/docentes");
   revalidatePath("/admin-db/usuarios");
-  redirect("/admin-db/docentes");
+  redirect("/admin-db/usuarios");
 }
 
-export async function actualizarDocente(
+export async function actualizarSecretaria(
   id: string,
   _prevState: EstadoFormulario,
   formData: FormData
 ): Promise<EstadoFormulario> {
-  const datos = leerDatosDocente(formData);
-  if (!datos.nombres) return { error: "El nombre del docente es obligatorio." };
+  const datos = leerDatosSecretaria(formData);
 
   const supabase = await crearClienteServidor();
-  const { error } = await supabase.from("docentes").update(datos).eq("id", id);
-  if (error) return { error: "No se pudo actualizar el docente." };
+  const { error } = await supabase.from("secretarias").update(datos).eq("id", id);
+  if (error) return { error: "No se pudo actualizar a la secretaria." };
 
-  revalidatePath("/admin-db/docentes");
-  return { exito: "Docente actualizado correctamente." };
-}
-
-export async function eliminarDocente(id: string) {
-  const supabase = await crearClienteServidor();
-  const { error } = await supabase.from("docentes").delete().eq("id", id);
-  if (error) return { error: "No se pudo eliminar el docente. Verifica que no tenga cursos asignados." };
-
-  revalidatePath("/admin-db/docentes");
-  return { exito: "Docente eliminado." };
+  revalidatePath("/admin-db/usuarios");
+  return { exito: "Datos actualizados correctamente." };
 }

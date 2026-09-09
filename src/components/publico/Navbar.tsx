@@ -7,6 +7,8 @@ import { Logo } from "@/components/ui/Logo";
 const ENLACES_PANEL: Record<string, string> = {
   admin_db: "/admin-db",
   admin_contenido: "/admin-contenido",
+  docente: "/docente",
+  secretaria: "/secretaria",
   cliente: "/cliente",
 };
 
