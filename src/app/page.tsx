@@ -2,17 +2,17 @@ import Image from "next/image";
 import { Navbar } from "@/components/publico/Navbar";
 import { Footer } from "@/components/publico/Footer";
 import { TarjetaCurso } from "@/components/publico/TarjetaCurso";
-import { obtenerMapaContenido, textoDe, imagenDe, cursosDe } from "@/lib/contenido";
+import { obtenerMapaContenido, textoDe, imagenDe } from "@/lib/contenido";
+import { obtenerCursosPublicos } from "@/lib/cursos-publico";
 
 export default async function PaginaInicio() {
-  const mapa = await obtenerMapaContenido();
+  const [mapa, cursos] = await Promise.all([obtenerMapaContenido(), obtenerCursosPublicos()]);
 
   const tituloHero = textoDe(mapa, "hero", "titulo");
   const subtituloHero = textoDe(mapa, "hero", "subtitulo");
   const imagenHero = imagenDe(mapa, "hero", "imagen_fondo");
   const tituloNosotros = textoDe(mapa, "nosotros", "titulo");
   const textoNosotros = textoDe(mapa, "nosotros", "texto");
-  const cursos = cursosDe(mapa);
 
   return (
     <>
@@ -50,8 +50,8 @@ export default async function PaginaInicio() {
             </p>
           ) : (
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {cursos.map((curso, indice) => (
-                <TarjetaCurso key={indice} curso={curso} />
+              {cursos.map((curso) => (
+                <TarjetaCurso key={curso.id} curso={curso} />
               ))}
             </div>
           )}

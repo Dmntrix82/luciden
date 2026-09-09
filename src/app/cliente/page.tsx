@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { obtenerUsuarioActual } from "@/lib/supabase/perfil";
-import { obtenerMapaContenido, cursosDe } from "@/lib/contenido";
 import { TarjetaCurso } from "@/components/publico/TarjetaCurso";
+import { obtenerCursosPublicos } from "@/lib/cursos-publico";
 
 export const metadata: Metadata = { title: "Mi cuenta — Instituto LUCIDEN" };
 
 export default async function PaginaCliente() {
   const usuario = await obtenerUsuarioActual();
-  const mapa = await obtenerMapaContenido();
-  const cursos = cursosDe(mapa);
+  const cursos = await obtenerCursosPublicos();
 
   return (
     <div className="flex flex-col gap-8">
@@ -40,8 +39,8 @@ export default async function PaginaCliente() {
           <p className="mt-4 text-gray-500">Todavía no hay cursos publicados.</p>
         ) : (
           <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {cursos.map((curso, indice) => (
-              <TarjetaCurso key={indice} curso={curso} />
+            {cursos.map((curso) => (
+              <TarjetaCurso key={curso.id} curso={curso} />
             ))}
           </div>
         )}

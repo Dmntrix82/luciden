@@ -19,6 +19,7 @@ export function BotonDescargarPlantilla() {
       "2026-11-30",
       "Diseño Gráfico",
       "350",
+      "Activo",
       "",
     ].join(",");
 

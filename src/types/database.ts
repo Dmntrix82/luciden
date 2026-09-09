@@ -2,6 +2,8 @@ export type Rol = "cliente" | "admin_db" | "admin_contenido";
 
 export type Sexo = "Masculino" | "Femenino";
 
+export type EstadoPago = "activo" | "pago_pendiente" | "desactivado";
+
 export type TipoContenido = "texto" | "imagen" | "tipografia" | "color";
 
 export type AccionHistorial = "creó" | "modificó" | "eliminó";
@@ -27,12 +29,52 @@ export type Estudiante = {
   fecha_inscripcion: string;
   fecha_inicio: string | null;
   fecha_final: string | null;
-  curso: string;
+  curso: string | null;
+  curso_id: string | null;
+  estado_pago: EstadoPago;
   mensualidad: number;
   observaciones: string | null;
   created_at: string;
   updated_at: string;
   created_by: string | null;
+};
+
+export type EstudianteTelefono = {
+  id: string;
+  estudiante_id: string;
+  numero: string;
+  etiqueta: string | null;
+  created_at: string;
+};
+
+export type Docente = {
+  id: string;
+  nombres: string;
+  direccion: string | null;
+  carnet_identidad: string | null;
+  celular: string | null;
+  fecha_inicio: string | null;
+  fecha_final: string | null;
+  documento_cv: boolean;
+  documento_carnet: boolean;
+  documento_contrato: boolean;
+  observaciones: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Curso = {
+  id: string;
+  nombre: string;
+  docente_id: string | null;
+  horario: string | null;
+  informacion: string | null;
+  imagen_url: string | null;
+  fecha_inicio_clases: string | null;
+  fecha_fin_clases: string | null;
+  activo: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export type ContenidoPagina = {
@@ -59,11 +101,19 @@ export type HistorialCambio = {
   fecha_hora: string;
 };
 
-type Tabla<Row, Insert, Update> = {
+type GenericRelationship = {
+  foreignKeyName: string;
+  columns: string[];
+  isOneToOne?: boolean;
+  referencedRelation: string;
+  referencedColumns: string[];
+};
+
+type Tabla<Row, Insert, Update, Relationships extends GenericRelationship[] = []> = {
   Row: Row;
   Insert: Insert;
   Update: Update;
-  Relationships: [];
+  Relationships: Relationships;
 };
 
 export type Database = {
@@ -76,9 +126,44 @@ export type Database = {
       >;
       estudiantes: Tabla<
         Estudiante,
-        Omit<Estudiante, "id" | "created_at" | "updated_at" | "created_by"> &
-          Partial<Pick<Estudiante, "id" | "created_by">>,
-        Partial<Omit<Estudiante, "id" | "created_at" | "updated_at">>
+        Omit<Estudiante, "id" | "created_at" | "updated_at" | "created_by" | "curso"> &
+          Partial<Pick<Estudiante, "id" | "created_by" | "curso">>,
+        Partial<Omit<Estudiante, "id" | "created_at" | "updated_at">>,
+        [
+          {
+            foreignKeyName: "estudiantes_curso_id_fkey";
+            columns: ["curso_id"];
+            isOneToOne: false;
+            referencedRelation: "cursos";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
+      estudiante_telefonos: Tabla<
+        EstudianteTelefono,
+        Omit<EstudianteTelefono, "id" | "created_at" | "etiqueta"> &
+          Partial<Pick<EstudianteTelefono, "id" | "etiqueta">>,
+        Partial<Omit<EstudianteTelefono, "id">>
+      >;
+      docentes: Tabla<
+        Docente,
+        Omit<Docente, "id" | "created_at" | "updated_at"> & Partial<Pick<Docente, "id">>,
+        Partial<Omit<Docente, "id" | "created_at" | "updated_at">>
+      >;
+      cursos: Tabla<
+        Curso,
+        Omit<Curso, "id" | "created_at" | "updated_at" | "imagen_url"> &
+          Partial<Pick<Curso, "id" | "imagen_url">>,
+        Partial<Omit<Curso, "id" | "created_at" | "updated_at">>,
+        [
+          {
+            foreignKeyName: "cursos_docente_id_fkey";
+            columns: ["docente_id"];
+            isOneToOne: false;
+            referencedRelation: "docentes";
+            referencedColumns: ["id"];
+          },
+        ]
       >;
       contenido_pagina: Tabla<
         ContenidoPagina,

@@ -1,6 +1,7 @@
 export interface FiltrosEstudiantes {
   buscar?: string;
-  curso?: string;
+  curso_id?: string;
+  estado_pago?: string;
   ordenar?: string;
   direccion?: "asc" | "desc";
 }
@@ -9,8 +10,8 @@ export const COLUMNAS_ORDENABLES = [
   "codigo_estudiante",
   "apellido_paterno",
   "nombres",
-  "curso",
   "fecha_inscripcion",
+  "fecha_final",
   "mensualidad",
 ] as const;
 

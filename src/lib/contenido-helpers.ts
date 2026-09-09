@@ -1,4 +1,4 @@
-import { CAMPOS_COLOR, CAMPOS_TEXTO, CLAVE_LISTA_CURSOS, SECCION_CURSOS, type Curso } from "@/lib/contenido-config";
+import { CAMPOS_COLOR, CAMPOS_TEXTO } from "@/lib/contenido-config";
 
 export type MapaContenido = Record<string, Record<string, string>>;
 
@@ -17,15 +17,4 @@ export function colorDe(mapa: MapaContenido, clave: string): string {
 
 export function imagenDe(mapa: MapaContenido, seccion: string, clave: string): string | null {
   return mapa[seccion]?.[clave] || null;
-}
-
-export function cursosDe(mapa: MapaContenido): Curso[] {
-  const crudo = mapa[SECCION_CURSOS]?.[CLAVE_LISTA_CURSOS];
-  if (!crudo) return [];
-  try {
-    const lista = JSON.parse(crudo);
-    return Array.isArray(lista) ? lista : [];
-  } catch {
-    return [];
-  }
 }

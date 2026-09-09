@@ -1,5 +1,6 @@
 import Image from "next/image";
-import type { Curso } from "@/lib/contenido-config";
+import type { Curso } from "@/types/database";
+import { formatearFecha } from "@/lib/fecha";
 
 export function TarjetaCurso({ curso }: { curso: Curso }) {
   return (
@@ -8,7 +9,7 @@ export function TarjetaCurso({ curso }: { curso: Curso }) {
         {curso.imagen_url ? (
           <Image
             src={curso.imagen_url}
-            alt={curso.titulo}
+            alt={curso.nombre}
             fill
             className="object-cover"
             unoptimized
@@ -20,11 +21,13 @@ export function TarjetaCurso({ curso }: { curso: Curso }) {
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="font-semibold text-azul-oscuro">{curso.titulo}</h3>
-        {curso.descripcion && <p className="text-sm text-gray-600">{curso.descripcion}</p>}
-        <div className="mt-auto flex items-center justify-between pt-2 text-sm">
-          {curso.duracion && <span className="text-gray-500">{curso.duracion}</span>}
-          {curso.precio && <span className="font-medium text-azul-medio">{curso.precio}</span>}
+        <h3 className="font-semibold text-azul-oscuro">{curso.nombre}</h3>
+        {curso.informacion && <p className="text-sm text-gray-600">{curso.informacion}</p>}
+        <div className="mt-auto flex flex-col gap-1 pt-2 text-sm text-gray-500">
+          {curso.horario && <span>Horario: {curso.horario}</span>}
+          {curso.fecha_inicio_clases && (
+            <span>Inicio: {formatearFecha(curso.fecha_inicio_clases)}</span>
+          )}
         </div>
       </div>
     </article>

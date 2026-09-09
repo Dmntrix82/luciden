@@ -6,12 +6,9 @@ import {
   CAMPOS_COLOR,
   CAMPOS_TEXTO,
   CLAVE_FUENTE_PERSONALIZADA,
-  CLAVE_LISTA_CURSOS,
   CLAVE_TAMANO_BASE,
-  SECCION_CURSOS,
   SECCION_PALETA,
   SECCION_TIPOGRAFIA,
-  type Curso,
 } from "@/lib/contenido-config";
 import type { EstadoFormulario } from "@/lib/actions/auth";
 
@@ -31,16 +28,6 @@ async function requerirAdminContenido() {
     .single();
 
   return { supabase, autorizado: perfil?.rol === "admin_contenido", userId: user.id };
-}
-
-function slugificar(texto: string) {
-  return texto
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 50);
 }
 
 export async function guardarTextos(
@@ -209,70 +196,4 @@ export async function subirFuentePersonalizada(
 
   revalidatePath("/");
   return { exito: "Fuente personalizada actualizada." };
-}
-
-export async function guardarCursos(
-  _prevState: EstadoFormulario,
-  formData: FormData
-): Promise<EstadoFormulario> {
-  const { supabase, autorizado } = await requerirAdminContenido();
-  if (!autorizado) return { error: "No tienes permiso para editar los cursos." };
-
-  const crudo = String(formData.get("cursos") ?? "[]");
-  let cursos: Curso[];
-  try {
-    cursos = JSON.parse(crudo);
-    if (!Array.isArray(cursos)) throw new Error("no es una lista");
-  } catch {
-    return { error: "Los datos de los cursos no son válidos." };
-  }
-
-  for (const curso of cursos) {
-    if (!curso.titulo || !curso.titulo.trim()) {
-      return { error: "Cada curso debe tener un título." };
-    }
-  }
-
-  const { error } = await supabase
-    .from("contenido_pagina")
-    .upsert(
-      {
-        seccion: SECCION_CURSOS,
-        tipo: "texto",
-        clave: CLAVE_LISTA_CURSOS,
-        valor: JSON.stringify(cursos),
-      },
-      { onConflict: "seccion,clave" }
-    );
-
-  if (error) return { error: "No se pudieron guardar los cursos." };
-
-  revalidatePath("/");
-  revalidatePath("/admin-contenido/cursos");
-  revalidatePath("/cliente");
-  return { exito: "Cursos actualizados correctamente." };
-}
-
-export async function subirImagenCurso(archivo: File): Promise<{ url?: string; error?: string }> {
-  const { supabase, autorizado } = await requerirAdminContenido();
-  if (!autorizado) return { error: "No tienes permiso para subir imágenes." };
-
-  if (!TIPOS_IMAGEN_PERMITIDOS.includes(archivo.type)) {
-    return { error: "Formato de imagen no permitido." };
-  }
-  if (archivo.size > TAMANO_MAXIMO_BYTES) {
-    return { error: "La imagen no debe superar 5 MB." };
-  }
-
-  const extension = archivo.name.split(".").pop();
-  const ruta = `cursos/${slugificar(archivo.name)}-${Date.now()}.${extension}`;
-
-  const { error } = await supabase.storage
-    .from(BUCKET)
-    .upload(ruta, archivo, { contentType: archivo.type });
-
-  if (error) return { error: "No se pudo subir la imagen del curso." };
-
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(ruta);
-  return { url: data.publicUrl };
 }

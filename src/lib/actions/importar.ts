@@ -4,7 +4,8 @@ import ExcelJS from "exceljs";
 import { crearClienteServidor } from "@/lib/supabase/server";
 import { analizarCSV, normalizarEncabezado, normalizarFecha } from "@/lib/csv";
 import { CAMPOS_OBLIGATORIOS, COLUMNAS_CSV } from "@/lib/estudiantes-csv-config";
-import type { Sexo } from "@/types/database";
+import { normalizarEncabezado as normalizarTexto } from "@/lib/csv";
+import type { EstadoPago, Sexo } from "@/types/database";
 
 export interface ErrorFilaImportacion {
   fila: number;
@@ -119,6 +120,11 @@ export async function importarEstudiantesCSV(
     return indice === undefined ? "" : (fila[indice] ?? "").trim();
   };
 
+  const { data: cursos } = await supabase.from("cursos").select("id, nombre");
+  const idCursoPorNombre = new Map(
+    (cursos ?? []).map((c) => [normalizarTexto(c.nombre), c.id])
+  );
+
   const errores: ErrorFilaImportacion[] = [];
   let insertados = 0;
 
@@ -135,9 +141,14 @@ export async function importarEstudiantesCSV(
     const curso = obtener(fila, "curso");
     const mensualidadTexto = obtener(fila, "mensualidad");
     const observaciones = obtener(fila, "observaciones") || null;
+    let estadoPagoTexto = normalizarTexto(obtener(fila, "estado_pago") || "activo");
 
     if (/^m$/i.test(sexo) || /^masculino$/i.test(sexo)) sexo = "Masculino";
     else if (/^f$/i.test(sexo) || /^femenino$/i.test(sexo)) sexo = "Femenino";
+
+    if (["pendiente", "pago_pendiente"].includes(estadoPagoTexto)) estadoPagoTexto = "pago_pendiente";
+    else if (["desactivado", "inactivo"].includes(estadoPagoTexto)) estadoPagoTexto = "desactivado";
+    else estadoPagoTexto = "activo";
 
     if (
       !codigo_estudiante ||
@@ -153,6 +164,15 @@ export async function importarEstudiantesCSV(
     }
     if (sexo !== "Masculino" && sexo !== "Femenino") {
       errores.push({ fila: numeroFila, mensaje: `Sexo inválido: "${sexo}" (debe ser Masculino o Femenino).` });
+      continue;
+    }
+
+    const curso_id = idCursoPorNombre.get(normalizarTexto(curso));
+    if (!curso_id) {
+      errores.push({
+        fila: numeroFila,
+        mensaje: `El curso "${curso}" no existe. Regístralo primero en Admin DB → Cursos.`,
+      });
       continue;
     }
 
@@ -193,7 +213,8 @@ export async function importarEstudiantesCSV(
       fecha_inscripcion,
       fecha_inicio,
       fecha_final,
-      curso,
+      curso_id,
+      estado_pago: estadoPagoTexto as EstadoPago,
       mensualidad,
       observaciones,
     });

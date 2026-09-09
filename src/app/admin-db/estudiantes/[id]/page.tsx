@@ -14,7 +14,12 @@ export default async function PaginaEditarEstudiante({
 }) {
   const { id } = await params;
   const supabase = await crearClienteServidor();
-  const { data: estudiante } = await supabase.from("estudiantes").select("*").eq("id", id).single();
+
+  const [{ data: estudiante }, { data: cursos }, { data: telefonos }] = await Promise.all([
+    supabase.from("estudiantes").select("*").eq("id", id).single(),
+    supabase.from("cursos").select("*").order("nombre"),
+    supabase.from("estudiante_telefonos").select("numero").eq("estudiante_id", id),
+  ]);
 
   if (!estudiante) notFound();
 
@@ -32,6 +37,8 @@ export default async function PaginaEditarEstudiante({
       <FormularioEstudiante
         accion={actualizarEstudiante.bind(null, id)}
         valoresIniciales={estudiante}
+        cursos={cursos ?? []}
+        telefonosIniciales={(telefonos ?? []).map((t) => t.numero)}
         textoBoton="Guardar cambios"
       />
     </div>

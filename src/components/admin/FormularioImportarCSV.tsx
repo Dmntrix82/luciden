@@ -24,7 +24,9 @@ export function FormularioImportarCSV() {
         <h2 className="font-semibold text-azul-oscuro">1. Descarga la plantilla</h2>
         <p className="mt-1 text-sm text-gray-600">
           Usa este archivo como base: mantén los encabezados y agrega una fila por estudiante.
-          Las fechas van en formato AAAA-MM-DD (ej. 2026-03-14).
+          Las fechas van en formato AAAA-MM-DD (ej. 2026-03-14). La columna &quot;Curso&quot; debe
+          coincidir exactamente con el nombre de un curso ya registrado en{" "}
+          <span className="font-medium">Admin DB → Cursos</span>.
         </p>
         <div className="mt-3">
           <BotonDescargarPlantilla />

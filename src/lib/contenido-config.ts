@@ -21,8 +21,6 @@ export interface CampoColor {
 
 export const SECCION_PALETA = "paleta";
 export const SECCION_TIPOGRAFIA = "tipografia";
-export const SECCION_CURSOS = "cursos";
-export const CLAVE_LISTA_CURSOS = "lista";
 export const CLAVE_FUENTE_PERSONALIZADA = "fuente_personalizada_url";
 export const CLAVE_TAMANO_BASE = "tamano_base";
 
@@ -72,19 +70,3 @@ export const CAMPOS_COLOR: CampoColor[] = [
 ];
 
 export const SLOGAN_LUCIDEN = "Educación con Excelencia";
-
-export interface Curso {
-  titulo: string;
-  descripcion: string;
-  duracion: string;
-  precio: string;
-  imagen_url: string | null;
-}
-
-export const CURSO_VACIO: Curso = {
-  titulo: "",
-  descripcion: "",
-  duracion: "",
-  precio: "",
-  imagen_url: null,
-};

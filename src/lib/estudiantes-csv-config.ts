@@ -17,6 +17,11 @@ export const COLUMNAS_CSV: ColumnaCSV[] = [
   { clave: "fecha_final", etiqueta: "Fecha Final", alias: ["fecha_final"] },
   { clave: "curso", etiqueta: "Curso", alias: ["curso"] },
   { clave: "mensualidad", etiqueta: "Mensualidad", alias: ["mensualidad"] },
+  {
+    clave: "estado_pago",
+    etiqueta: "Estado de Pago",
+    alias: ["estado_de_pago", "estado_pago", "estado"],
+  },
   { clave: "observaciones", etiqueta: "Observaciones", alias: ["observaciones"] },
 ];
 

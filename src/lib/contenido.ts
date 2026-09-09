@@ -14,4 +14,4 @@ export async function obtenerMapaContenido(): Promise<MapaContenido> {
 }
 
 export type { MapaContenido } from "@/lib/contenido-helpers";
-export { textoDe, colorDe, imagenDe, cursosDe } from "@/lib/contenido-helpers";
+export { textoDe, colorDe, imagenDe } from "@/lib/contenido-helpers";
