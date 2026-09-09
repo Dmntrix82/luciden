@@ -14,17 +14,20 @@ export function FormularioImagen({
   clave,
   etiqueta,
   urlActual,
+  recomendacion,
 }: {
   seccion: string;
   clave: string;
   etiqueta: string;
   urlActual: string | null;
+  recomendacion?: string;
 }) {
   const [estado, accionFormulario, enProgreso] = useActionState(subirImagen, estadoInicial);
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6">
       <h2 className="font-semibold text-azul-oscuro">{etiqueta}</h2>
+      {recomendacion && <p className="mt-1 text-xs text-gray-500">{recomendacion}</p>}
       <div className="relative mt-3 h-36 w-full overflow-hidden rounded-md bg-gris-claro">
         {urlActual ? (
           <Image src={urlActual} alt={etiqueta} fill className="object-contain" unoptimized />

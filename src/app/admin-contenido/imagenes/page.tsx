@@ -19,6 +19,7 @@ export default async function PaginaImagenes() {
             clave={campo.clave}
             etiqueta={campo.etiqueta}
             urlActual={imagenDe(mapa, campo.seccion, campo.clave)}
+            recomendacion={campo.recomendacion}
           />
         ))}
       </div>

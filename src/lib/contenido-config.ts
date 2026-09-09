@@ -11,6 +11,7 @@ export interface CampoImagen {
   clave: string;
   etiqueta: string;
   descripcion?: string;
+  recomendacion?: string;
 }
 
 export interface CampoColor {
@@ -58,8 +59,18 @@ export const CAMPOS_TEXTO: CampoTexto[] = [
 ];
 
 export const CAMPOS_IMAGEN: CampoImagen[] = [
-  { seccion: "general", clave: "logo", etiqueta: "Logo del instituto" },
-  { seccion: "hero", clave: "imagen_fondo", etiqueta: "Imagen de portada" },
+  {
+    seccion: "general",
+    clave: "logo",
+    etiqueta: "Logo del instituto",
+    recomendacion: "Tamaño recomendado: 400 × 400 px (cuadrado), menos de 200 KB.",
+  },
+  {
+    seccion: "hero",
+    clave: "imagen_fondo",
+    etiqueta: "Imagen de portada",
+    recomendacion: "Tamaño recomendado: 1600 × 800 px (ancha), menos de 400 KB.",
+  },
 ];
 
 export const CAMPOS_COLOR: CampoColor[] = [
