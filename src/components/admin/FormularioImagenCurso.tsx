@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
-import Image from "next/image";
+import { useActionState, useRef, useState } from "react";
 import { subirImagenCurso } from "@/lib/actions/cursos";
 import { Boton } from "@/components/ui/Boton";
 import { Mensaje } from "@/components/ui/Mensaje";
@@ -11,6 +10,19 @@ const estadoInicial: EstadoFormulario = {};
 
 export function FormularioImagenCurso({ cursoId, imagenUrl }: { cursoId: string; imagenUrl: string | null }) {
   const [estado, accionFormulario, enProgreso] = useActionState(subirImagenCurso, estadoInicial);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function manejarSeleccion(evento: React.ChangeEvent<HTMLInputElement>) {
+    const archivo = evento.target.files?.[0];
+    if (!archivo) return;
+    setPreviewUrl((anterior) => {
+      if (anterior) URL.revokeObjectURL(anterior);
+      return URL.createObjectURL(archivo);
+    });
+  }
+
+  const urlMostrada = previewUrl ?? imagenUrl;
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6">
@@ -19,8 +31,9 @@ export function FormularioImagenCurso({ cursoId, imagenUrl }: { cursoId: string;
         Tamaño recomendado: 800 × 450 px (proporción 16:9), menos de 300 KB.
       </p>
       <div className="relative mt-3 h-40 w-full overflow-hidden rounded-md bg-gris-claro">
-        {imagenUrl ? (
-          <Image src={imagenUrl} alt="Afiche del curso" fill className="object-cover" unoptimized />
+        {urlMostrada ? (
+          // eslint-disable-next-line @next/next/no-img-element -- puede ser una URL blob: de previsualización local
+          <img src={urlMostrada} alt="Afiche del curso" className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-gray-400">Sin imagen</div>
         )}
@@ -29,10 +42,21 @@ export function FormularioImagenCurso({ cursoId, imagenUrl }: { cursoId: string;
         <input type="hidden" name="id" value={cursoId} />
         {estado.error && <Mensaje tipo="error" texto={estado.error} />}
         {estado.exito && <Mensaje tipo="exito" texto={estado.exito} />}
-        <input type="file" name="archivo" accept="image/png,image/jpeg,image/webp,image/gif" required className="text-sm" />
-        <div>
-          <Boton type="submit" variante="secundario" disabled={enProgreso}>
-            {enProgreso ? "Subiendo..." : "Subir imagen"}
+        <input
+          ref={inputRef}
+          type="file"
+          name="archivo"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          onChange={manejarSeleccion}
+          required
+          className="hidden"
+        />
+        <div className="flex gap-2">
+          <Boton type="button" variante="secundario" onClick={() => inputRef.current?.click()}>
+            Cargar imagen
+          </Boton>
+          <Boton type="submit" disabled={enProgreso || !previewUrl}>
+            {enProgreso ? "Guardando..." : "Guardar cambios"}
           </Boton>
         </div>
       </form>
