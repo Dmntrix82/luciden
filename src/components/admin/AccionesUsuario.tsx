@@ -7,6 +7,7 @@ import { cambiarRolUsuario, desactivarPersonal, reactivarPersonal } from "@/lib/
 import { Boton } from "@/components/ui/Boton";
 import { Campo } from "@/components/ui/Campo";
 import { Mensaje } from "@/components/ui/Mensaje";
+import { ModalConfirmacion } from "@/components/ui/ModalConfirmacion";
 import type { EstadoFormulario } from "@/lib/actions/auth";
 import type { Rol } from "@/types/database";
 
@@ -60,21 +61,37 @@ export function SelectorRol({ perfilId, rolActual }: { perfilId: string; rolActu
 export function BotonDesactivar({ perfilId }: { perfilId: string }) {
   const router = useRouter();
   const [enProgreso, iniciarTransicion] = useTransition();
+  const [abierto, setAbierto] = useState(false);
 
-  function manejarClic() {
-    const confirmado = window.confirm("¿Desactivar esta cuenta? No podrá iniciar sesión hasta reactivarla.");
-    if (!confirmado) return;
+  function confirmar() {
     iniciarTransicion(async () => {
       const resultado = await desactivarPersonal(perfilId);
+      setAbierto(false);
       if (resultado?.error) window.alert(resultado.error);
       router.refresh();
     });
   }
 
   return (
-    <Boton variante="peligro" type="button" className="px-3 py-1.5 text-xs" onClick={manejarClic} disabled={enProgreso}>
-      Desactivar
-    </Boton>
+    <>
+      <Boton
+        variante="peligro"
+        type="button"
+        className="px-3 py-1.5 text-xs"
+        onClick={() => setAbierto(true)}
+        disabled={enProgreso}
+      >
+        Desactivar
+      </Boton>
+      <ModalConfirmacion
+        abierto={abierto}
+        mensaje="¿Desactivar esta cuenta? No podrá iniciar sesión hasta reactivarla."
+        textoConfirmar="Sí, desactivar"
+        enProgreso={enProgreso}
+        onConfirmar={confirmar}
+        onCancelar={() => setAbierto(false)}
+      />
+    </>
   );
 }
 
