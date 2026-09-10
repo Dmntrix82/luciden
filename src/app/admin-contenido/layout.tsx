@@ -10,6 +10,7 @@ const ENLACES = [
   { href: "/admin-contenido/imagenes", etiqueta: "Imágenes" },
   { href: "/admin-contenido/tipografia", etiqueta: "Tipografía" },
   { href: "/admin-contenido/cursos", etiqueta: "Cursos" },
+  { href: "/admin-contenido/reportes", etiqueta: "Reportes", exacto: true },
 ];
 
 export default function LayoutAdminContenido({ children }: { children: React.ReactNode }) {
@@ -21,11 +22,16 @@ export default function LayoutAdminContenido({ children }: { children: React.Rea
             <Logo tamano="sm" />
             <span className="hidden text-sm text-gray-400 sm:inline">Contenido</span>
           </Link>
-          <form action={cerrarSesion}>
-            <Boton type="submit" variante="fantasma">
-              Cerrar sesión
-            </Boton>
-          </form>
+          <div className="flex items-center gap-2">
+            <Link href="/mi-perfil">
+              <Boton variante="fantasma">Mi perfil</Boton>
+            </Link>
+            <form action={cerrarSesion}>
+              <Boton type="submit" variante="fantasma">
+                Cerrar sesión
+              </Boton>
+            </form>
+          </div>
         </div>
         <div className="mx-auto max-w-6xl">
           <PanelNav enlaces={ENLACES} />

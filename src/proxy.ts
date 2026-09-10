@@ -9,7 +9,7 @@ const RUTAS_POR_ROL: Record<string, Rol> = {
   "/secretaria": "secretaria",
 };
 
-const RUTAS_AUTENTICADAS = ["/cliente"];
+const RUTAS_AUTENTICADAS = ["/cliente", "/mi-perfil"];
 const RUTAS_SOLO_INVITADOS = ["/login", "/registro"];
 
 function panelDeInicio(rol: Rol | undefined) {

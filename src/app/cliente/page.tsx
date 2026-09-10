@@ -12,7 +12,7 @@ export default async function PaginaCliente() {
   return (
     <div className="flex flex-col gap-8">
       <section className="rounded-lg border border-gray-200 bg-white p-6">
-        <h1 className="text-xl font-semibold text-azul-oscuro">Mi perfil</h1>
+        <h1 className="text-xl font-semibold text-azul-oscuro">Mi cuenta</h1>
         <dl className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-gray-500">Nombre completo</dt>

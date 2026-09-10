@@ -16,6 +16,7 @@ export type Perfil = {
   id: string;
   nombre_usuario: string | null;
   nombre_completo: string | null;
+  foto_url: string | null;
   rol: Rol;
   activo: boolean;
   created_at: string;

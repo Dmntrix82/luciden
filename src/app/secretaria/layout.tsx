@@ -12,11 +12,16 @@ export default function LayoutSecretaria({ children }: { children: React.ReactNo
             <Logo tamano="sm" />
             <span className="hidden text-sm text-gray-400 sm:inline">Secretaría</span>
           </Link>
-          <form action={cerrarSesion}>
-            <Boton type="submit" variante="fantasma">
-              Cerrar sesión
-            </Boton>
-          </form>
+          <div className="flex items-center gap-2">
+            <Link href="/mi-perfil">
+              <Boton variante="fantasma">Mi perfil</Boton>
+            </Link>
+            <form action={cerrarSesion}>
+              <Boton type="submit" variante="fantasma">
+                Cerrar sesión
+              </Boton>
+            </form>
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">{children}</main>
