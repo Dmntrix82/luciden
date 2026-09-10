@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Campo, CampoTextarea } from "@/components/ui/Campo";
+import { Campo, CampoContrasena, CampoTextarea } from "@/components/ui/Campo";
 import { Boton } from "@/components/ui/Boton";
 import { Mensaje } from "@/components/ui/Mensaje";
 import type { EstadoFormulario } from "@/lib/actions/auth";
@@ -44,10 +44,9 @@ export function FormularioSecretaria({
             <Campo etiqueta="Nombre completo" nombre="nombre_completo" requerido />
             <Campo etiqueta="Nombre de usuario" nombre="nombre_usuario" requerido autoComplete="off" />
             <Campo etiqueta="Correo electrónico" nombre="email" type="email" requerido autoComplete="off" />
-            <Campo
+            <CampoContrasena
               etiqueta="Contraseña (mínimo 8 caracteres)"
               nombre="password"
-              type="password"
               requerido
               minLength={8}
               autoComplete="new-password"

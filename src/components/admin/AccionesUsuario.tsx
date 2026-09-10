@@ -46,7 +46,7 @@ export function SelectorRol({ perfilId, rolActual }: { perfilId: string; rolActu
         onChange={(e) => manejarCambio(e.target.value as Rol)}
         className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-azul-medio focus:outline-none"
       >
-        <option value="cliente">Cliente</option>
+        <option value="cliente">Público</option>
         <option value="docente">Docente</option>
         <option value="secretaria">Secretaria</option>
         <option value="admin_db">Admin BD</option>

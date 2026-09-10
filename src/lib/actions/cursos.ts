@@ -20,30 +20,47 @@ function leerDatosCurso(formData: FormData) {
   };
 }
 
-function leerDias(formData: FormData): number[] {
-  return formData.getAll("dias").map((v) => Number(v)).filter((n) => n >= 1 && n <= 7);
+interface FilaHorario {
+  dia_semana: number;
+  hora_inicio: string;
+  hora_fin: string;
 }
 
-async function sincronizarHorario(
-  supabase: Awaited<ReturnType<typeof crearClienteServidor>>,
-  cursoId: string,
-  formData: FormData
-): Promise<string | null> {
-  const dias = leerDias(formData);
-  const horaInicio = String(formData.get("hora_inicio") ?? "");
-  const horaFin = String(formData.get("hora_fin") ?? "");
+function leerYValidarHorario(formData: FormData): { filas: FilaHorario[] } | { error: string } {
+  const dias = formData.getAll("horario_dia");
+  const inicios = formData.getAll("horario_inicio");
+  const fines = formData.getAll("horario_fin");
 
-  await supabase.from("curso_horarios").delete().eq("curso_id", cursoId);
+  const filas: FilaHorario[] = [];
+  const diasVistos = new Set<number>();
 
-  if (dias.length === 0) return null;
-  if (!horaInicio || !horaFin) return "Indica la hora de inicio y de fin del horario.";
-  if (horaFin <= horaInicio) return "La hora de fin debe ser posterior a la hora de inicio.";
+  for (let i = 0; i < dias.length; i++) {
+    const diaTexto = String(dias[i] ?? "").trim();
+    const horaInicio = String(inicios[i] ?? "").trim();
+    const horaFin = String(fines[i] ?? "").trim();
 
-  const { error } = await supabase.from("curso_horarios").insert(
-    dias.map((dia_semana) => ({ curso_id: cursoId, dia_semana, hora_inicio: horaInicio, hora_fin: horaFin }))
-  );
-  if (error) return "No se pudo guardar el horario.";
-  return null;
+    // Fila vacía (el admin dejó una fila sin completar): se ignora.
+    if (!diaTexto && !horaInicio && !horaFin) continue;
+
+    const dia = Number(diaTexto);
+    if (!diaTexto || !Number.isInteger(dia) || dia < 1 || dia > 7) {
+      return { error: `Selecciona un día válido en la fila de horario #${i + 1}.` };
+    }
+    if (!horaInicio || !horaFin) {
+      return { error: `Completa la hora de inicio y de fin en la fila de horario #${i + 1}.` };
+    }
+    if (horaFin <= horaInicio) {
+      return { error: `En la fila de horario #${i + 1}, la hora de fin debe ser posterior a la de inicio.` };
+    }
+    if (diasVistos.has(dia)) {
+      return { error: `Ya agregaste ese mismo día más de una vez en el horario.` };
+    }
+    diasVistos.add(dia);
+
+    filas.push({ dia_semana: dia, hora_inicio: horaInicio, hora_fin: horaFin });
+  }
+
+  return { filas };
 }
 
 export async function crearCurso(
@@ -53,12 +70,22 @@ export async function crearCurso(
   const datos = leerDatosCurso(formData);
   if (!datos.nombre) return { error: "El nombre del curso es obligatorio." };
 
+  const horario = leerYValidarHorario(formData);
+  if ("error" in horario) return { error: horario.error };
+
   const supabase = await crearClienteServidor();
   const { data: nuevo, error } = await supabase.from("cursos").insert(datos).select("id").single();
   if (error || !nuevo) return { error: "No se pudo registrar el curso." };
 
-  const errorHorario = await sincronizarHorario(supabase, nuevo.id, formData);
-  if (errorHorario) return { error: errorHorario };
+  if (horario.filas.length > 0) {
+    const { error: errorHorario } = await supabase
+      .from("curso_horarios")
+      .insert(horario.filas.map((fila) => ({ curso_id: nuevo.id, ...fila })));
+    if (errorHorario) {
+      // El curso ya se creó; no lo revertimos, pero avisamos que el horario falló.
+      return { error: "El curso se creó, pero no se pudo guardar el horario. Edítalo para intentarlo de nuevo." };
+    }
+  }
 
   revalidatePath("/admin-db/cursos");
   revalidatePath("/");
@@ -73,12 +100,20 @@ export async function actualizarCurso(
   const datos = leerDatosCurso(formData);
   if (!datos.nombre) return { error: "El nombre del curso es obligatorio." };
 
+  const horario = leerYValidarHorario(formData);
+  if ("error" in horario) return { error: horario.error };
+
   const supabase = await crearClienteServidor();
   const { error } = await supabase.from("cursos").update(datos).eq("id", id);
   if (error) return { error: "No se pudo actualizar el curso." };
 
-  const errorHorario = await sincronizarHorario(supabase, id, formData);
-  if (errorHorario) return { error: errorHorario };
+  await supabase.from("curso_horarios").delete().eq("curso_id", id);
+  if (horario.filas.length > 0) {
+    const { error: errorHorario } = await supabase
+      .from("curso_horarios")
+      .insert(horario.filas.map((fila) => ({ curso_id: id, ...fila })));
+    if (errorHorario) return { error: "No se pudo guardar el horario, pero el resto de los datos sí se actualizó." };
+  }
 
   revalidatePath("/admin-db/cursos");
   revalidatePath("/");

@@ -15,6 +15,16 @@ type AccionFormulario = (
 
 const estadoInicial: EstadoFormulario = {};
 
+interface FilaHorario {
+  dia: string;
+  inicio: string;
+  fin: string;
+}
+
+function nuevaFila(): FilaHorario {
+  return { dia: "", inicio: "", fin: "" };
+}
+
 export function FormularioCurso({
   accion,
   valoresIniciales,
@@ -29,14 +39,18 @@ export function FormularioCurso({
   textoBoton: string;
 }) {
   const [estado, accionFormulario, enProgreso] = useActionState(accion, estadoInicial);
-  const [diasSeleccionados, setDiasSeleccionados] = useState<number[]>(
-    horariosIniciales.map((h) => h.dia_semana)
+  const [filas, setFilas] = useState<FilaHorario[]>(
+    horariosIniciales.length > 0
+      ? horariosIniciales.map((h) => ({
+          dia: String(h.dia_semana),
+          inicio: h.hora_inicio.slice(0, 5),
+          fin: h.hora_fin.slice(0, 5),
+        }))
+      : [nuevaFila()]
   );
 
-  function alternarDia(dia: number) {
-    setDiasSeleccionados((actuales) =>
-      actuales.includes(dia) ? actuales.filter((d) => d !== dia) : [...actuales, dia]
-    );
+  function actualizarFila(indice: number, cambios: Partial<FilaHorario>) {
+    setFilas((actuales) => actuales.map((f, i) => (i === indice ? { ...f, ...cambios } : f)));
   }
 
   return (
@@ -67,35 +81,60 @@ export function FormularioCurso({
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-medium text-gray-700">¿Qué días hay clase?</p>
-        <div className="flex flex-wrap gap-3">
-          {DIAS_SEMANA.map((dia) => (
-            <label key={dia.valor} className="flex items-center gap-1.5 text-sm text-gray-700">
+        <p className="mb-2 text-sm font-medium text-gray-700">Horario de clases</p>
+        <div className="flex flex-col gap-2">
+          {filas.map((fila, indice) => (
+            <div key={indice} className="flex flex-wrap items-end gap-2">
+              <select
+                name="horario_dia"
+                value={fila.dia}
+                onChange={(e) => actualizarFila(indice, { dia: e.target.value })}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-azul-medio focus:outline-none"
+              >
+                <option value="">Día</option>
+                {DIAS_SEMANA.map((d) => (
+                  <option key={d.valor} value={d.valor}>
+                    {d.etiqueta}
+                  </option>
+                ))}
+              </select>
               <input
-                type="checkbox"
-                name="dias"
-                value={dia.valor}
-                checked={diasSeleccionados.includes(dia.valor)}
-                onChange={() => alternarDia(dia.valor)}
-                className="h-4 w-4"
+                type="time"
+                name="horario_inicio"
+                value={fila.inicio}
+                onChange={(e) => actualizarFila(indice, { inicio: e.target.value })}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-azul-medio focus:outline-none"
               />
-              {dia.etiqueta}
-            </label>
+              <span className="text-sm text-gray-500">a</span>
+              <input
+                type="time"
+                name="horario_fin"
+                value={fila.fin}
+                onChange={(e) => actualizarFila(indice, { fin: e.target.value })}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-azul-medio focus:outline-none"
+              />
+              {filas.length > 1 && (
+                <Boton
+                  type="button"
+                  variante="peligro"
+                  className="px-3 py-1.5 text-xs"
+                  onClick={() => setFilas((actuales) => actuales.filter((_, i) => i !== indice))}
+                >
+                  Quitar
+                </Boton>
+              )}
+            </div>
           ))}
-        </div>
-        <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Campo
-            etiqueta="Hora de inicio"
-            nombre="hora_inicio"
-            type="time"
-            defaultValue={horariosIniciales[0]?.hora_inicio?.slice(0, 5)}
-          />
-          <Campo
-            etiqueta="Hora de fin"
-            nombre="hora_fin"
-            type="time"
-            defaultValue={horariosIniciales[0]?.hora_fin?.slice(0, 5)}
-          />
+          <div>
+            <Boton
+              type="button"
+              variante="secundario"
+              className="px-3 py-1.5 text-xs"
+              onClick={() => setFilas((actuales) => [...actuales, nuevaFila()])}
+            >
+              + Agregar otro día
+            </Boton>
+          </div>
         </div>
       </div>
 

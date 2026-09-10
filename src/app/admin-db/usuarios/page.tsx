@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { crearClienteServidor } from "@/lib/supabase/server";
 import { esEditorActivo } from "@/lib/personal-estado";
-import { Boton } from "@/components/ui/Boton";
 import { SelectorRol, BotonDesactivar, FormularioReactivar } from "@/components/admin/AccionesUsuario";
 import type { Perfil } from "@/types/database";
 
@@ -44,16 +43,14 @@ export default async function PaginaUsuarios() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
+      <div>
         <h1 className="text-xl font-semibold text-azul-oscuro">Usuarios y roles</h1>
-        <Link href="/admin-db/usuarios/nueva-secretaria">
-          <Boton>+ Nueva secretaria</Boton>
-        </Link>
+        <p className="mt-1 text-sm text-gray-500">
+          Esto lista las <span className="font-medium">cuentas de acceso al sitio</span> (quien se
+          registró). No confundir con la lista de estudiantes matriculados en Estudiantes. Para
+          registrar un docente o secretaria nueva, ve a sus secciones respectivas.
+        </p>
       </div>
-      <p className="text-sm text-gray-500">
-        Esto lista las <span className="font-medium">cuentas de acceso al sitio</span> (quien se
-        registró). No confundir con la lista de estudiantes matriculados en Estudiantes.
-      </p>
 
       <section>
         <h2 className="mb-3 font-semibold text-azul-oscuro">Docentes ({docentesLista.length})</h2>
@@ -130,7 +127,11 @@ export default async function PaginaUsuarios() {
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold text-azul-oscuro">Estudiantes registrados en el sitio ({clientes.length})</h2>
+        <h2 className="mb-3 font-semibold text-azul-oscuro">Usuarios públicos registrados ({clientes.length})</h2>
+        <p className="mb-3 text-xs text-gray-500">
+          Cualquiera que se registra en el sitio (padres, interesados, etc.) queda aquí. Todavía no
+          es un estudiante matriculado — eso se registra aparte en Estudiantes.
+        </p>
         <div className="flex flex-col gap-3">
           {clientes.map((perfil) => (
             <Tarjeta key={perfil.id} perfil={perfil} />
